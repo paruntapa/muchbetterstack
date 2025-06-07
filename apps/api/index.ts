@@ -1,5 +1,4 @@
 import express from "express";
-import { prisma } from "db/index";
 
 const app = express();
 
@@ -12,7 +11,7 @@ app.get("/",(req, res) => {
 })
 
 app.get("/status/:websiteId", (req, res) => {
-    const {websiteId} = req.params;
+    const { websiteId } = req.params;
     res.json({
         message: `status of ${websiteId}`
     })
