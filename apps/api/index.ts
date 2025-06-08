@@ -17,6 +17,13 @@ app.get("/status/:websiteId", (req, res) => {
     })
 })
 
+app.post("/status", (req, res) => {
+    const { websiteId } = req.body;
+    res.json({
+        message: `status of ${websiteId}`
+    })
+})
+
 app.listen(8080, () => {
   console.log("Server is running on port 8080");
 });
