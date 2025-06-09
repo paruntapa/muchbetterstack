@@ -24,6 +24,13 @@ app.post("/status", (req, res) => {
     })
 })
 
+app.post("/status/create", (req, res) => {
+    const { websiteId } = req.body;
+    res.json({
+        message: `status of ${websiteId} created`
+    })
+})
+
 app.listen(8080, () => {
   console.log("Server is running on port 8080");
 });
