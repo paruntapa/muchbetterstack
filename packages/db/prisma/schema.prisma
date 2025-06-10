@@ -14,11 +14,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String   @id @default(uuid())
+  username  String
+  password  String
+  websites  Website[]
+}
+
 model Website {
   id        String   @id @default(uuid())
+  userId   String?
   url       String
   timeAdded DateTime @default(now())
   ticks     WebsiteTick[]
+  user      User?      @relation(fields: [userId], references: [id])
 }
 
 model Region {
@@ -28,13 +37,14 @@ model Region {
 }
 
 model WebsiteTick {
-  id        String   @id @default(uuid())
+  id                String   @id @default(uuid())
   response_time_ms  Int
-  status    WebsiteStatus
-  website   Website @relation(fields: [website_Id], references: [id])
-  website_Id String
-  region    Region  @relation(fields: [region_Id], references: [id])
-  region_Id  String
+  status            WebsiteStatus
+  website           Website @relation(fields: [website_Id], references: [id])
+  website_Id        String
+  region            Region  @relation(fields: [region_Id], references: [id])
+  region_Id         String
+  createdAt         DateTime @default(now())
 
 }
 

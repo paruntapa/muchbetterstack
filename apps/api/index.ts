@@ -1,4 +1,5 @@
 import express from "express";
+import { prisma } from "db";
 
 const app = express();
 
@@ -17,15 +18,15 @@ app.get("/status/:websiteId", (req, res) => {
     })
 })
 
-app.post("/status", (req, res) => {
+app.post("/status", async (req, res) => {
     const { websiteId } = req.body;
     res.json({
         message: `status of ${websiteId}`
     })
 })
 
-app.post("/status/create", (req, res) => {
-    const { websiteId } = req.body;
+app.post("/status/create/:websiteId", async (req, res) => {
+    const { websiteId } = req.params;
     res.json({
         message: `status of ${websiteId} created`
     })
