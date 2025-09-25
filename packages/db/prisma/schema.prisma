@@ -14,41 +14,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model user {
   id        String   @id @default(uuid())
-  username  String
+  username  String   @unique
   password  String
-  websites  Website[]
+  websites  website[]
 }
 
-model Website {
-  id        String   @id @default(uuid())
-  userId   String?
-  url       String
-  timeAdded DateTime @default(now())
-  ticks     WebsiteTick[]
-  user      User?      @relation(fields: [userId], references: [id])
+model website {
+  id          String   @id @default(uuid())
+  user_id     String?
+  url         String
+  time_added  DateTime @default(now())
+  ticks       website_tick[]
+  user        user?      @relation(fields: [user_id], references: [id])
 }
 
-model Region {
+model region {
   id        String   @id @default(uuid())
   name      String
-  websites  WebsiteTick[]
+  websites  website_tick[]
 }
 
-model WebsiteTick {
+model website_tick {
   id                String   @id @default(uuid())
   response_time_ms  Int
-  status            WebsiteStatus
-  website           Website @relation(fields: [website_Id], references: [id])
-  website_Id        String
-  region            Region  @relation(fields: [region_Id], references: [id])
-  region_Id         String
+  status            website_status
+  website           website @relation(fields: [website_id], references: [id])
+  website_id        String
+  region            region  @relation(fields: [region_id], references: [id])
+  region_id         String
   createdAt         DateTime @default(now())
 
 }
 
-enum WebsiteStatus {
+enum website_status {
    UP 
    DOWN 
    UNKNOWN
