@@ -2,6 +2,7 @@ import express from "express";
 import { prisma } from "db";
 import { AuthInput } from "./types";
 import jwt  from "jsonwebtoken";
+import { authMiddleware } from "./middleware";
 
 const app = express();
 
@@ -13,7 +14,7 @@ app.get("/",(req, res) => {
     })
 })
 
-app.get("/status/:websiteId", async (req, res) => {
+app.get("/status/:websiteId", authMiddleware, async (req, res) => {
     
     const websites = prisma.website.findFirst({
         where: {
@@ -42,7 +43,7 @@ app.get("/status/:websiteId", async (req, res) => {
     
 })
 
-app.post("/website", async (req, res) => {
+app.post("/website", authMiddleware, async (req, res) => {
     if (!req.body.url) {
         res.status(403).send("Provide URL")
         return;
