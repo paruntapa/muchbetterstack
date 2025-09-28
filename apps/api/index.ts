@@ -3,10 +3,14 @@ import { prisma } from "db";
 import { AuthInput } from "./types";
 import jwt  from "jsonwebtoken";
 import { authMiddleware } from "./middleware";
+import cors from "cors";
 
 const app = express();
 
 app.use(express.json());
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:3002']
+}));
 
 app.get("/",(req, res) => {
     res.json({
@@ -16,7 +20,7 @@ app.get("/",(req, res) => {
 
 app.get("/status/:websiteId", authMiddleware, async (req, res) => {
     
-    const websites = prisma.website.findFirst({
+    const websites = await prisma.website.findFirst({
         where: {
             user_id: req.userId!,
             id: req.params.websiteId,
@@ -26,7 +30,7 @@ app.get("/status/:websiteId", authMiddleware, async (req, res) => {
                 orderBy: [{
                     createdAt: 'desc'
                 }],
-                take: 1
+                take: 10
             }
         }
     })
@@ -43,6 +47,25 @@ app.get("/status/:websiteId", authMiddleware, async (req, res) => {
     
 })
 
+app.get("/websites", authMiddleware, async (req, res) => {
+    const websites = await prisma.website.findMany({
+        where: {
+            user_id: req.userId
+        },
+        include: {
+            ticks: {
+                orderBy: [{
+                    createdAt: 'desc'
+                }],
+                take: 1
+            }
+        }
+    })
+
+    res.json({
+        websites
+    })
+})
 app.post("/website", authMiddleware, async (req, res) => {
 
     if (!req.body.url) {
@@ -66,6 +89,7 @@ app.post("/website", authMiddleware, async (req, res) => {
 app.post("/user/signup", async (req: any, res: any) => {
 
     const data = AuthInput.safeParse(req.body);
+    console.log(data)
 
     if (!data.success) {
         return res.status(403).send("inputs are wrong");

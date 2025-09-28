@@ -9,6 +9,8 @@ const main = async () => {
         }
     });
 
+    console.log(`Producing for ${websites.length} sites!`)
+
     xAddBulk(websites.map(w => ({
         id: w.id,
         url: w.url
@@ -24,4 +26,4 @@ const main = async () => {
 
 setInterval(() => {
     main()
-}, 3 * 1000 * 60)
+}, 30 * 1000)

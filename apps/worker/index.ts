@@ -33,6 +33,7 @@ const fetchWebsites = async (id: string, url: string) => {
         })
         .catch( async (e) => {
             const endTime = Date.now();
+            console.log(websiteId, 'websiteId')
             await prisma.website_tick.create({
                 data: {
                     response_time_ms: endTime - startTime,
@@ -65,4 +66,6 @@ const main = async () => {
     // }
 };
 
-main();
+setInterval(() => {
+    main()
+}, 25 * 1000)

@@ -34,7 +34,7 @@ export const xReadGroup = async (consumerGrp: string, workerId: string): Promise
         key: STREAM_NAME,
         id: '>'
     }, {
-        COUNT: 5
+        COUNT: 500
     })
 
     if (!res) {
