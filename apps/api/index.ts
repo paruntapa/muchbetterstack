@@ -44,6 +44,7 @@ app.get("/status/:websiteId", authMiddleware, async (req, res) => {
 })
 
 app.post("/website", authMiddleware, async (req, res) => {
+
     if (!req.body.url) {
         res.status(403).send("Provide URL")
         return;
@@ -52,7 +53,7 @@ app.post("/website", authMiddleware, async (req, res) => {
     const website = await prisma.website.create({
         data: {
             url: req.body.url,
-            user_id: "Asdas",
+            user_id: req.userId,
             time_added: new Date(),
         }
     })

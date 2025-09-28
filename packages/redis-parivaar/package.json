@@ -1,11 +1,12 @@
 {
-  "name": "producer",
+  "name": "redis-parivaar",
   "module": "index.ts",
   "type": "module",
-  "private": true,
+  "exports": {
+    "./client": "./index.ts"
+  },
   "devDependencies": {
-    "@types/bun": "latest",
-    "redis-parivaar": "*"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"

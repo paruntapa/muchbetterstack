@@ -1,54 +1,68 @@
-import { createClient } from "redis";
 import { prisma } from "db";
+import { xAckBulk, xReadGroup } from "redis-parivaar/client"
 import axios from "axios";
 
 interface websites {
-    id:                string;
-    status:            string;
-    url:               string;
+    id?:    string;
+    message:  {
+        id: string,
+        url: string
+    };
+}
+
+const REGION_ID = process.env.REGION_ID!;
+const WORKER_ID = process.env.WORKER_ID!;
+
+const fetchWebsites = async (id: string, url: string) => {
+    return new Promise<void>((resolve, reject) => {
+        const websiteId = id;
+        const startTime = Date.now();
+
+        axios.get(url)
+        .then(async () => {
+            const endTime = Date.now();
+            await prisma.website_tick.create({
+                data: {
+                    response_time_ms: endTime - startTime,
+                    status: "UP",
+                    region_id: REGION_ID,
+                    website_id: websiteId
+                }
+            })
+            resolve();
+        })
+        .catch( async (e) => {
+            const endTime = Date.now();
+            await prisma.website_tick.create({
+                data: {
+                    response_time_ms: endTime - startTime,
+                    status: "DOWN",
+                    region_id: REGION_ID,
+                    website_id: websiteId
+                }
+            })
+            resolve();
+        })
+    })
 }
 
 const main = async () => {
-    while(1) {
+    // while(1) {
 
-        const client = await createClient()
-        .on("error", (err) => console.log(`redis has this error ${err}`))
-        .connect();
-    
-        const res = await client.xReadGroup('india', 'india-1', {
-            key: 'betteruptime:websites',
-            id: '>'
-        }, {
-            COUNT: 2
-        })
-    
-        if (!res) {
-            client.destroy();
+        const response = await xReadGroup(REGION_ID, WORKER_ID);
+
+        if (!response) {
             return;
         }
-        // @ts-ignore
-        let websitesToTrack = res[0].messages;
-        websitesToTrack.forEach(async (website: websites) => {
-            let startTime = Date.now();
 
-            await axios.get(website.url)
-                .then(async ()=> {
-                    await prisma.website_tick.create({
-                        data: {
-                            status: "UP",
-                            response_time_ms: Date.now() - startTime,
-                            region_id: "india",
-                            website_id: website.id    
-                        }
-                    })
-                })
-                .catch((e) => {
-                    console.log(e)
-                })
-        })
-    
-    }
+        let promises = response.map(({message}: websites) => fetchWebsites(message.id, message.url))
 
+        await Promise.all(promises);
+
+        console.log(promises.length, "promises length is shown here");
+
+        xAckBulk(REGION_ID, response.map(({id}: {id: string}) => id));
+    // }
 };
 
 main();
